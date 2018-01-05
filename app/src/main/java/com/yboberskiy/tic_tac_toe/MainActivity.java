@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < childCount; i ++) {
             ImageView childView = (ImageView) gridLayout.getChildAt(i);
             if (childView != null) {
-                childView.setImageResource(R.drawable.tictactoe_empty);
+                childView.setImageResource(0);
             }
         }
     }
