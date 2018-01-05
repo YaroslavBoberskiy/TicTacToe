@@ -2,10 +2,11 @@ package com.yboberskiy.tic_tac_toe;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,22 +26,26 @@ public class MainActivity extends AppCompatActivity {
             {0,4,8},
             {2,4,6}};
 
+    Button startAgainButton;
+    TextView infoTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startAgainButton = (Button) findViewById(R.id.startAgainButton);
+        infoTextView = (TextView) findViewById(R.id.infoTextView);
+
+        startAgainButton.setVisibility(View.INVISIBLE);
+        infoTextView.setVisibility(View.INVISIBLE);
+
     }
 
     public void dropIn (View view) {
             dropPointImageView = (ImageView) view;
             int tappedChip = Integer.parseInt(dropPointImageView.getTag().toString());
             updateGameState(tappedChip, activePlayer);
-            if (checkWinCondition() == 9) {
-                Toast.makeText(this, " X - WIN!", Toast.LENGTH_SHORT).show();
-            }
-            if (checkWinCondition() == 12) {
-                Toast.makeText(this, " O - WIN!", Toast.LENGTH_SHORT).show();
-            }
     }
 
     public void switchPlayer() {
@@ -69,10 +74,47 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateGameState (int tappedChip, int activePlayer) {
         if (gameState[tappedChip] == 11) {
-            dropPointImageView.setTranslationX(-1000f);
+            dropPointImageView.setTranslationX(-100f);
             gameState[tappedChip] = activePlayer;
-            dropPointImageView.animate().translationXBy(1000f).setDuration(300);
+            dropPointImageView.animate().translationXBy(100f).setDuration(50);
             switchPlayer();
+            if (checkWinCondition() == 9 || checkWinCondition() == 12) {
+                showControls(checkWinCondition());
+            }
         }
     }
+
+    public void showControls(int winner) {
+        startAgainButton.setVisibility(View.VISIBLE);
+        infoTextView.setVisibility(View.VISIBLE);
+
+        if (checkWinCondition() == 9) {
+            infoTextView.setText("X won! \n Press continue to play again!");
+        }
+        if (checkWinCondition() == 12) {
+            infoTextView.setText("O won! \n Press continue to play again!");
+        }
+    }
+
+    public void hideControls () {
+        startAgainButton.setVisibility(View.INVISIBLE);
+        infoTextView.setVisibility(View.INVISIBLE);
+    }
+
+    public void resetTheGame (View view) {
+        hideControls ();
+        int [] resetGameState = {11,11,11,11,11,11,11,11,11};
+        gameState = resetGameState;
+        GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
+        int childCount = gridLayout.getChildCount();
+
+        for (int i = 0; i < childCount; i ++) {
+            ImageView childView = (ImageView) gridLayout.getChildAt(i);
+            if (childView != null) {
+                childView.setImageResource(R.drawable.tictactoe_empty);
+            }
+        }
+    }
+
+
 }
