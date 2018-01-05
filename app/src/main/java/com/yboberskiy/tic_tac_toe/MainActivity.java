@@ -7,15 +7,21 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     // activePlayer = 3 (cross), activePlayer = 4 (zero)
     // 11 means unplayed
-
     int activePlayer = 3;
-    ImageView dropPointImageView;
     int [] gameState = {11,11,11,11,11,11,11,11,11};
+
+    // game state 0 - means active, state 1 - means ended
+    boolean gameIsActive = true;
+
+    // track number of mover
+    int numberOfMoves = 0;
+
     int [][] winStates = {
             {0,1,2},
             {3,4,5},
@@ -26,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
             {0,4,8},
             {2,4,6}};
 
+    ImageView dropPointImageView;
     Button startAgainButton;
     TextView infoTextView;
 
@@ -45,7 +52,10 @@ public class MainActivity extends AppCompatActivity {
     public void dropIn (View view) {
             dropPointImageView = (ImageView) view;
             int tappedChip = Integer.parseInt(dropPointImageView.getTag().toString());
-            updateGameState(tappedChip, activePlayer);
+            if (gameIsActive) {
+                updateGameState(tappedChip, activePlayer);
+                numberOfMoves ++;
+            }
     }
 
     public void switchPlayer() {
@@ -61,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
     public int checkWinCondition () {
         int sum = 0;
         for (int i = 0; i < 8; i ++) {
-            sum = 0;
             for (int k = 0; k < 3; k ++) {
                 sum += gameState[winStates[i][k]];
                 if (sum == 12 || sum == 9) {
                     return sum;
                 }
             }
+            sum = 0;
         }
         return sum;
     }
@@ -78,8 +88,11 @@ public class MainActivity extends AppCompatActivity {
             gameState[tappedChip] = activePlayer;
             dropPointImageView.animate().translationXBy(100f).setDuration(50);
             switchPlayer();
-            if (checkWinCondition() == 9 || checkWinCondition() == 12) {
-                showControls(checkWinCondition());
+            int winCondition = checkWinCondition();
+            if ((winCondition == 9 || winCondition == 12) ||
+                    winCondition == 0 && numberOfMoves == 8) {
+                gameIsActive = false;
+                showControls(winCondition);
             }
         }
     }
@@ -88,11 +101,12 @@ public class MainActivity extends AppCompatActivity {
         startAgainButton.setVisibility(View.VISIBLE);
         infoTextView.setVisibility(View.VISIBLE);
 
-        if (checkWinCondition() == 9) {
+        if (winner == 9) {
             infoTextView.setText("X won! \n Press continue to play again!");
-        }
-        if (checkWinCondition() == 12) {
+        } else if (winner == 12) {
             infoTextView.setText("O won! \n Press continue to play again!");
+        } else {
+            infoTextView.setText("Standoff! \n Press continue to play again!");
         }
     }
 
@@ -102,11 +116,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void resetTheGame (View view) {
+        gameIsActive = true;
         hideControls ();
         int [] resetGameState = {11,11,11,11,11,11,11,11,11};
         gameState = resetGameState;
         GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         int childCount = gridLayout.getChildCount();
+        infoTextView.setText("");
 
         for (int i = 0; i < childCount; i ++) {
             ImageView childView = (ImageView) gridLayout.getChildAt(i);
