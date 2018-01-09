@@ -19,9 +19,10 @@ public class MainActivity extends AppCompatActivity {
     // game state 0 - means active, state 1 - means ended
     boolean gameIsActive = true;
 
-    // track number of mover
+    // track number of moves
     int numberOfMoves = 0;
 
+    // win position combinations in the array gameState
     int [][] winStates = {
             {0,1,2},
             {3,4,5},
